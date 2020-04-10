@@ -15,7 +15,8 @@
         android:text="@string/button_exit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_g_off" />
+        app:layout_constraintStart_toEndOf="@+id/button_g_off"
+        android:onClick="exitButtonClick" />
 
     <ImageView
         android:id="@+id/image_uni_logo"
@@ -60,7 +61,8 @@
         android:text="@string/button_play"
         app:layout_constraintEnd_toStartOf="@+id/button_pause"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_app_name" />
+        app:layout_constraintTop_toBottomOf="@+id/text_app_name"
+        android:onClick="playButtonClick"/>
 
     <Button
         android:id="@+id/button_pause"
@@ -70,7 +72,8 @@
         android:text="@string/button_pause"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_app_name" />
+        app:layout_constraintTop_toBottomOf="@+id/text_app_name"
+        android:onClick="pauseButtonClick" />
 
     <Button
         android:id="@+id/button_stop"
@@ -80,7 +83,8 @@
         android:text="@string/button_stop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_pause"
-        app:layout_constraintTop_toBottomOf="@+id/text_app_name" />
+        app:layout_constraintTop_toBottomOf="@+id/text_app_name"
+        android:onClick="stopButtonClick" />
 
     <Button
         android:id="@+id/button_g_on"
