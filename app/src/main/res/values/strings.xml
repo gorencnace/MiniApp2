@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">MiniApp2</string>
+    <string name="button_exit">EXIT</string>
+    <string name="class_name">PDB2020</string>
+    <string name="mini_app_name">Android Mini App 2</string>
+    <string name="button_play">PLAY</string>
+    <string name="button_pause">PAUSE</string>
+    <string name="button_stop">STOP</string>
+    <string name="button_g_on">G-ON</string>
+    <string name="button_g_off">G-OFF</string>
+    <string name="song_info">(song info)</string>
+    <string name="duration">(duration)</string>
+    <string name="desc_uni_logo">uni_logo</string>
+</resources>
