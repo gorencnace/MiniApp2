@@ -1,19 +1,30 @@
 package si.uni_lj.fri.pbd.miniapp2;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Random;
 
 public class MediaPlayerService extends Service {
@@ -21,8 +32,13 @@ public class MediaPlayerService extends Service {
     private static final String TAG = MediaPlayerService.class.getSimpleName();
 
     public static final String ACTION_STOP = "stop_service";
+    public static final String ACTION_PAUSE = "pause_service";
+    public static final String ACTION_PLAY = "start_service";
+    public static final String ACTION_EXIT = "exit_service";
 
-    public static final String ACTION_START = "start_service";
+    private static final String channelID = "background_timer";
+
+    private static final int NOTIFICATION_ID = 69;
 
     // media files in assets
     private AssetManager assetManager;
@@ -55,11 +71,14 @@ public class MediaPlayerService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // create notification channel
+        createNotificationChannel();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Starting service");
+        createNotification();
         return Service.START_STICKY;
     }
 
@@ -140,5 +159,81 @@ public class MediaPlayerService extends Service {
 
     public int getSongId() {
         return songId;
+    }
+
+    private void createNotification() {
+        // add code to define a notification action
+        Intent stopIntent = new Intent(this, MediaPlayerService.class);
+        stopIntent.setAction(ACTION_STOP);
+        PendingIntent stopPendingIntent = PendingIntent.getService(this, 0,
+                stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent playIntent = new Intent(this, MediaPlayerService.class);
+        playIntent.setAction(ACTION_PLAY);
+        PendingIntent playPendingIntent = PendingIntent.getService(this, 0,
+                playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent pauseIntent = new Intent(this, MediaPlayerService.class);
+        pauseIntent.setAction(ACTION_PAUSE);
+        PendingIntent pausePendingIntent = PendingIntent.getService(this, 0,
+                pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent exitIntent = new Intent(this, MediaPlayerService.class);
+        exitIntent.setAction(ACTION_EXIT);
+        PendingIntent exitPendingIntent = PendingIntent.getService(this, 0,
+                exitIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelID);
+        if (isMediaPlayerNull()) {
+            builder.setSmallIcon(R.mipmap.ic_launcher)
+                    .setChannelId(channelID)
+                    .addAction(android.R.drawable.ic_media_play, "Play", playPendingIntent)
+                    .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)
+                    .addAction(android.R.drawable.ic_media_pause, "Exit", exitPendingIntent);
+        } else if (isPlaying()) {
+            builder.setContentTitle(songs[songId])
+                    //.setContentText(setTimerText())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setChannelId(channelID)
+                    .addAction(android.R.drawable.ic_media_pause, "Pause", pausePendingIntent)
+                    .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)
+                    .addAction(android.R.drawable.ic_media_pause, "Exit", exitPendingIntent);
+
+        } else {
+            builder.setContentTitle(songs[songId])
+                    //.setContentText(setTimerText())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setChannelId(channelID)
+                    .addAction(android.R.drawable.ic_media_play, "Play", playPendingIntent)
+                    .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)
+                    .addAction(android.R.drawable.ic_media_pause, "Exit", exitPendingIntent);// create an action button in the notification
+        }
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(this, 0, resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(resultPendingIntent);
+
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    // Uncomment for creating a notification channel for the foreground service
+    private void createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        } else {
+
+            NotificationChannel channel = new NotificationChannel(MediaPlayerService.channelID, getString(R.string.channel_name), NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(getString(R.string.channel_desc));
+            channel.enableLights(true);
+            channel.setLightColor(Color.RED);
+            channel.enableVibration(true);
+
+            NotificationManager managerCompat = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            managerCompat.createNotificationChannel(channel);
+        }
     }
 }

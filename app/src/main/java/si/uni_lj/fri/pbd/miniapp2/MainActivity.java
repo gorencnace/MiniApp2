@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
             MediaPlayerService.RunServiceBinder binder = (MediaPlayerService.RunServiceBinder) iBinder;
             mediaPlayerService = binder.getService();
             serviceBound = true;
-            // add timerService.background() immediately after you finish with binding the Service
-            //mediaPlayerService.background();
 
             // Update the UI if the service is already running the timer
             if (mediaPlayerService.isPlaying()) {
@@ -79,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Intent i = new Intent(this, MediaPlayerService.class);
-        i.setAction(MediaPlayerService.ACTION_START);
+        i.setAction(MediaPlayerService.ACTION_PLAY);
         startService(i);
         Log.d(TAG, "Starting and binding service");
         bindService(i, mConnection, 0);
@@ -110,30 +108,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-/*
-    public int playButtonService() {
-        Random rand = new Random();
-        int randN = rand.nextInt(songs.length);
-        if (mediaPlayer != null && isPlaying()) {
-            mediaPlayer.stop();
-        }
-        // https://stackoverflow.com/questions/3289038/play-audio-file-from-the-assets-directory
-        try {
-            AssetFileDescriptor assetFileDescriptor = getAssets().openFd("songs/" + songs[randN]);
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor(),
-                    assetFileDescriptor.getStartOffset(),
-                    assetFileDescriptor.getLength());
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d("MUSIC", e.toString());
-            return -1;
-        }
-        return randN;
-    }
-*/
+
     public void pauseButtonClick(View v) {
         if (serviceBound) {
             if (!mediaPlayerService.isMediaPlayerNull() && mediaPlayerService.isPlaying()) {
@@ -150,13 +125,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-/*
-    public void stopButtonService() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
-        mediaPlayer = null;
-    }
-*/
+
     public void exitButtonClick(View v) {
         if (serviceBound) {
             if (!mediaPlayerService.isMediaPlayerNull()) {
@@ -166,18 +135,6 @@ public class MainActivity extends AppCompatActivity {
         finish();
         System.exit(0);
     }
-
-/*    public void exitButtonService() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
-    }*/
-
-/*    public boolean isPlaying() {
-        if (mediaPlayer == null) {
-            return false;
-        }
-        return mediaPlayer.isPlaying();
-    }*/
 
     private void updateUIPlay(int id) {
         if (serviceBound) {
@@ -202,21 +159,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-/*    public String setTimerText() {
-        return durationToSting(mediaPlayer.getCurrentPosition()) + "/" + durationToSting(mediaPlayer.getDuration());
-    }
-
-    private String durationToSting(int d) {
-        // we add 500 ms to round up
-        d += 500;
-        d = d / 1000;
-        int h = d / 3600;
-        d %= 3600;
-        int min = d / 60;
-        int sec = d % 60;
-        return String.format("%d:%02d:%02d", h,  min, sec);
-    }*/
 
     static class UIUpdateHandler extends Handler {
         private final static int UPDATE_RATE_MS = 1000;

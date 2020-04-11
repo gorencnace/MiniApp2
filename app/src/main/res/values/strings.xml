@@ -11,4 +11,7 @@
     <string name="song_info">(song info)</string>
     <string name="duration">(duration)</string>
     <string name="desc_uni_logo">uni_logo</string>
+
+    <string name="channel_name">Foreground service channel</string>
+    <string name="channel_desc">Posts notifications related to the media player service</string>
 </resources>
