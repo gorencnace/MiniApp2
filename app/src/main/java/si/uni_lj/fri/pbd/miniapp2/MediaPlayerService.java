@@ -1,6 +1,5 @@
 package si.uni_lj.fri.pbd.miniapp2;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -17,11 +16,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -35,6 +33,14 @@ public class MediaPlayerService extends Service {
     public static final String ACTION_PAUSE = "pause_service";
     public static final String ACTION_PLAY = "start_service";
     public static final String ACTION_EXIT = "exit_service";
+
+    public final static String EXIT_ACTIVITY_BROADCAST = "si.uni_lj.fri.pbd.miniapp2.EXIT_ACTIVITY_BROADCAST";
+
+    private final Handler mUpdateHandler = new UIUpdateHandler(this);
+
+    private final static int MSG_SONG_TIME = 0;
+
+    public static final String TIMER_BROADCAST = "si.uni_lj.fri.pbd.miniapp2.TIMER_BROADCAST";
 
     private static final String channelID = "background_timer";
 
@@ -79,6 +85,17 @@ public class MediaPlayerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Starting service");
         createNotification();
+        if (intent.getAction() != null) {
+            if (intent.getAction().equals((ACTION_EXIT))) {
+                exitButtonService();
+            } else if (intent.getAction().equals(ACTION_PLAY)) {
+                playButtonService();
+            } else if (intent.getAction().equals(ACTION_PAUSE)) {
+                pauseButtonService();
+            } else if (intent.getAction().equals(ACTION_STOP)) {
+                stopButtonService();
+            }
+        }
         return Service.START_STICKY;
     }
 
@@ -88,39 +105,67 @@ public class MediaPlayerService extends Service {
         Log.d(TAG, "Destroying service");
     }
 
-    public int playButtonService() {
-        Random rand = new Random();
-        int randN = rand.nextInt(songs.length);
+    public void playButtonService() {
+        mUpdateHandler.sendEmptyMessage(MSG_SONG_TIME);
         if (isPlaying()) {
-            mediaPlayer.stop();
+            stopButtonService();
         }
-        // https://stackoverflow.com/questions/3289038/play-audio-file-from-the-assets-directory
-        try {
-            AssetFileDescriptor assetFileDescriptor = getAssets().openFd("songs/" + songs[randN]);
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor(),
-                    assetFileDescriptor.getStartOffset(),
-                    assetFileDescriptor.getLength());
-            mediaPlayer.prepare();
+        if (isMediaPlayerNull()) {
+            Random rand = new Random();
+            int randN = rand.nextInt(songs.length);
+
+            // https://stackoverflow.com/questions/3289038/play-audio-file-from-the-assets-directory
+            try {
+                AssetFileDescriptor assetFileDescriptor = getAssets().openFd("songs/" + songs[randN]);
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor(),
+                        assetFileDescriptor.getStartOffset(),
+                        assetFileDescriptor.getLength());
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                songId = randN;
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("MUSIC", e.toString());
+                songId = -1;
+            }
+        } else {
             mediaPlayer.start();
-            songId = randN;
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d("MUSIC", e.toString());
-            songId = -1;
+            mUpdateHandler.sendEmptyMessage(MSG_SONG_TIME);
+            return;
         }
-        return songId;
+        createNotification();
+    }
+
+    public void pauseButtonService() {
+        mUpdateHandler.removeMessages(MSG_SONG_TIME);
+        if (!isMediaPlayerNull() && isPlaying()) {
+            mUpdateHandler.removeMessages(MSG_SONG_TIME);
+            mediaPlayer.pause();
+        }
+        createNotification();
     }
 
     public void stopButtonService() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
-        mediaPlayer = null;
+        mUpdateHandler.removeMessages(MSG_SONG_TIME);
+        if (!isMediaPlayerNull()) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        createNotification();
     }
 
     public void exitButtonService() {
-        mediaPlayer.stop();
-        mediaPlayer.release();
+        if (!isMediaPlayerNull()) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        mUpdateHandler.removeMessages(MSG_SONG_TIME);
+        Intent exitIntent = new Intent(EXIT_ACTIVITY_BROADCAST);
+        deleteNotification();
+        stopSelf();
+        sendBroadcast(exitIntent);
     }
 
     public String setTimerText() {
@@ -129,7 +174,7 @@ public class MediaPlayerService extends Service {
 
     private String durationToSting(int d) {
         // we add 500 ms to round up
-        d += 500;
+        d += 200;
         d = d / 1000;
         int h = d / 3600;
         d %= 3600;
@@ -149,16 +194,11 @@ public class MediaPlayerService extends Service {
         return mediaPlayer == null;
     }
 
-    public MediaPlayer getMediaPlayer() {
-        return this.mediaPlayer;
-    }
-
-    public String getSongById(int id) {
-        return songs[id];
-    }
-
-    public int getSongId() {
-        return songId;
+    public String getSong() {
+        if (songId < 0) {
+            return null;
+        }
+        return songs[songId];
     }
 
     private void createNotification() {
@@ -192,7 +232,7 @@ public class MediaPlayerService extends Service {
                     .addAction(android.R.drawable.ic_media_pause, "Exit", exitPendingIntent);
         } else if (isPlaying()) {
             builder.setContentTitle(songs[songId])
-                    //.setContentText(setTimerText())
+                    .setContentText(setTimerText())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setChannelId(channelID)
                     .addAction(android.R.drawable.ic_media_pause, "Pause", pausePendingIntent)
@@ -201,12 +241,12 @@ public class MediaPlayerService extends Service {
 
         } else {
             builder.setContentTitle(songs[songId])
-                    //.setContentText(setTimerText())
+                    .setContentText(setTimerText())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setChannelId(channelID)
                     .addAction(android.R.drawable.ic_media_play, "Play", playPendingIntent)
                     .addAction(android.R.drawable.ic_media_pause, "Stop", stopPendingIntent)
-                    .addAction(android.R.drawable.ic_media_pause, "Exit", exitPendingIntent);// create an action button in the notification
+                    .addAction(android.R.drawable.ic_media_pause, "Exit", exitPendingIntent);
         }
 
         Intent resultIntent = new Intent(this, MainActivity.class);
@@ -217,6 +257,13 @@ public class MediaPlayerService extends Service {
 
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private void deleteNotification() {
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.deleteNotificationChannel(MediaPlayerService.channelID);
+        }
     }
 
     // Uncomment for creating a notification channel for the foreground service
@@ -235,5 +282,28 @@ public class MediaPlayerService extends Service {
             NotificationManager managerCompat = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             managerCompat.createNotificationChannel(channel);
         }
+    }
+
+    static class UIUpdateHandler extends Handler {
+        private final static int UPDATE_RATE_MS = 500;
+        private final WeakReference<MediaPlayerService> service;
+
+        UIUpdateHandler(MediaPlayerService service) {
+            this.service = new WeakReference<>(service);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MSG_SONG_TIME) {
+                service.get().updateUITimerService();
+                sendEmptyMessageDelayed(MSG_SONG_TIME, UPDATE_RATE_MS);
+            }
+        }
+    }
+
+    private void updateUITimerService() {
+        Intent intent = new Intent(TIMER_BROADCAST);
+        sendBroadcast(intent);
+        createNotification();
     }
 }
