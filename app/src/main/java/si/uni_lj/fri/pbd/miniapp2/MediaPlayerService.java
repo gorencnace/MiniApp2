@@ -106,7 +106,6 @@ public class MediaPlayerService extends Service {
     }
 
     public void playButtonService() {
-        mUpdateHandler.sendEmptyMessage(MSG_SONG_TIME);
         if (isPlaying()) {
             stopButtonService();
         }
@@ -134,6 +133,7 @@ public class MediaPlayerService extends Service {
             mUpdateHandler.sendEmptyMessage(MSG_SONG_TIME);
             return;
         }
+        mUpdateHandler.sendEmptyMessage(MSG_SONG_TIME);
         createNotification();
     }
 
