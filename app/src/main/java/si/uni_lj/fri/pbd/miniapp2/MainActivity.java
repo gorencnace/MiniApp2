@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -160,4 +161,18 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     };
+
+    public void gestureOn(View v) {
+        if (serviceBound) {
+            mediaPlayerService.gestureOnService();
+            Toast.makeText(this, "Gesture on", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void gestureOff(View v) {
+        if (serviceBound) {
+            mediaPlayerService.gestureOffService();
+            Toast.makeText(this, "Gesture off", Toast.LENGTH_LONG).show();
+        }
+    }
 }

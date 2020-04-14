@@ -4,8 +4,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Color;
@@ -16,7 +20,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -34,11 +37,11 @@ public class MediaPlayerService extends Service {
     public static final String ACTION_PLAY = "start_service";
     public static final String ACTION_EXIT = "exit_service";
 
-    public final static String EXIT_ACTIVITY_BROADCAST = "si.uni_lj.fri.pbd.miniapp2.EXIT_ACTIVITY_BROADCAST";
+    public static final String EXIT_ACTIVITY_BROADCAST = "si.uni_lj.fri.pbd.miniapp2.EXIT_ACTIVITY_BROADCAST";
 
     private final Handler mUpdateHandler = new UIUpdateHandler(this);
 
-    private final static int MSG_SONG_TIME = 0;
+    private static final int MSG_SONG_TIME = 0;
 
     public static final String TIMER_BROADCAST = "si.uni_lj.fri.pbd.miniapp2.TIMER_BROADCAST";
 
@@ -305,5 +308,59 @@ public class MediaPlayerService extends Service {
         Intent intent = new Intent(TIMER_BROADCAST);
         sendBroadcast(intent);
         createNotification();
+    }
+
+    private AccelerationService accelerationService;
+    private boolean serviceBound = false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.d(TAG, "AccelerationService bound");
+
+            AccelerationService.RunServiceBinder binder = (AccelerationService.RunServiceBinder) iBinder;
+            accelerationService = binder.getService();
+            serviceBound = true;
+
+            // Update the UI if the service is already running the timer
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "AccelerationService disconnect");
+            serviceBound = false;
+        }
+    };
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String command = intent.getStringExtra(AccelerationService.MOVEMENT);
+            if (command.equals(AccelerationService.HORIZONTAL)) {
+                pauseButtonService();
+            } else if (command.equals(AccelerationService.VERTICAL)) {
+                playButtonService();
+            }
+        }
+    };
+
+    public void gestureOnService() {
+        if (!serviceBound) {
+            Log.d(TAG, "gestureOnService");
+            Intent i = new Intent(this, AccelerationService.class);
+            startService(i);
+            bindService(i, mConnection, 0);
+            registerReceiver(mReceiver, new IntentFilter(AccelerationService.GESTURE_BROADCAST));
+        }
+    }
+
+    public void gestureOffService() {
+        if (serviceBound) {
+            unregisterReceiver(mReceiver);
+            unbindService(mConnection);
+            Intent i = new Intent(this, AccelerationService.class);
+            stopService(i);
+            serviceBound = false;
+        }
     }
 }

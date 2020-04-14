@@ -94,7 +94,8 @@
         android:text="@string/button_g_on"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_g_off"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="gestureOn"/>
 
     <Button
         android:id="@+id/button_g_off"
@@ -104,7 +105,8 @@
         android:text="@string/button_g_off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="gestureOff"/>
 
     <TextView
         android:id="@+id/text_song_info"

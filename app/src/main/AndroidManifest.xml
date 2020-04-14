@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <service android:name=".MediaPlayerService" />
+        <service android:name=".AccelerationService" />
     </application>
 
 </manifest>
