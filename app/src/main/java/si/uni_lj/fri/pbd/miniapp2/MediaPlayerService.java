@@ -428,7 +428,7 @@ public class MediaPlayerService extends Service {
 
     public void gestureOnService() {
         if (!serviceBound) {
-            Toast.makeText(this, "Gesture on", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Gestures activated", Toast.LENGTH_LONG).show();
             Log.d(TAG, "gestureOnService");
             Intent i = new Intent(this, AccelerationService.class);
             startService(i);
@@ -439,7 +439,7 @@ public class MediaPlayerService extends Service {
 
     public void gestureOffService() {
         if (serviceBound) {
-            Toast.makeText(this, "Gesture off", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Gestures deactivated", Toast.LENGTH_LONG).show();
             unregisterReceiver(mReceiver);
             unbindService(mConnection);
             Intent i = new Intent(this, AccelerationService.class);
