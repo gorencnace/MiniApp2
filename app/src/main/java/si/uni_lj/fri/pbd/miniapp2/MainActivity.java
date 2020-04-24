@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy");
         // we unregister receiver for exiting app from notification and exit app
         unregisterReceiver(exitReceiver);
-        System.exit(0);
     }
 
     /*

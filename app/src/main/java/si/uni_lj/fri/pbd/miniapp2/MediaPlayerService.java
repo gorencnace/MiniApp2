@@ -7,6 +7,7 @@
 
 package si.uni_lj.fri.pbd.miniapp2;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -125,7 +126,6 @@ public class MediaPlayerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Destroying service");
-        deleteNotification();
     }
 
     /*
@@ -213,6 +213,8 @@ public class MediaPlayerService extends Service {
         mUpdateHandler.removeMessages(MSG_SONG_TIME);
         // we set intent to exit app, delete notification, stop service and lastly send broadcast
         Intent exitIntent = new Intent(EXIT_ACTIVITY_BROADCAST);
+        //deleteNotification();
+        stopForeground(true);
         stopSelf();
         sendBroadcast(exitIntent);
     }
@@ -263,7 +265,7 @@ public class MediaPlayerService extends Service {
      * NOTIFICATION
      */
 
-    private void createNotification() {
+    private Notification createNotification() {
         /* NOTIFICATION ACTIONS */
         // STOP
         Intent stopIntent = new Intent(this, MediaPlayerService.class);
@@ -325,8 +327,9 @@ public class MediaPlayerService extends Service {
                         PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);
         // we show notification
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.notify(NOTIFICATION_ID, builder.build());
+        //NotificationManager manager = getSystemService(NotificationManager.class);
+        //manager.notify(NOTIFICATION_ID, builder.build());
+        return builder.build();
     }
 
     // here we dismiss notification
@@ -382,7 +385,7 @@ public class MediaPlayerService extends Service {
     private void updateUITimerService() {
         Intent intent = new Intent(TIMER_BROADCAST);
         sendBroadcast(intent);
-        createNotification();
+        startForeground(NOTIFICATION_ID, createNotification());
     }
 
     /*
