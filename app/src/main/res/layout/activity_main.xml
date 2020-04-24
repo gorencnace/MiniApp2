@@ -11,23 +11,23 @@
         android:id="@+id/button_exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
+        android:onClick="exitButtonClick"
         android:text="@string/button_exit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_g_off"
-        android:onClick="exitButtonClick" />
+        app:layout_constraintStart_toEndOf="@+id/button_g_off" />
 
     <ImageView
         android:id="@+id/image_uni_logo"
-        android:layout_width="166dp"
-        android:layout_height="161dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="140dp"
+        android:layout_height="127dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/desc_uni_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/uni_logo"
-        android:contentDescription="@string/desc_uni_logo" />
+        app:srcCompat="@drawable/uni_logo" />
 
     <TextView
         android:id="@+id/text_class_name"
@@ -57,56 +57,56 @@
         android:id="@+id/button_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
+        android:onClick="playButtonClick"
         android:text="@string/button_play"
         app:layout_constraintEnd_toStartOf="@+id/button_pause"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_app_name"
-        android:onClick="playButtonClick"/>
+        app:layout_constraintTop_toBottomOf="@+id/text_app_name" />
 
     <Button
         android:id="@+id/button_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
+        android:onClick="pauseButtonClick"
         android:text="@string/button_pause"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_app_name"
-        android:onClick="pauseButtonClick" />
+        app:layout_constraintTop_toBottomOf="@+id/text_app_name" />
 
     <Button
         android:id="@+id/button_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
+        android:onClick="stopButtonClick"
         android:text="@string/button_stop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_pause"
-        app:layout_constraintTop_toBottomOf="@+id/text_app_name"
-        android:onClick="stopButtonClick" />
+        app:layout_constraintTop_toBottomOf="@+id/text_app_name" />
 
     <Button
         android:id="@+id/button_g_on"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
+        android:onClick="gestureOn"
         android:text="@string/button_g_on"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_g_off"
-        app:layout_constraintStart_toStartOf="parent"
-        android:onClick="gestureOn"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/button_g_off"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
+        android:onClick="gestureOff"
         android:text="@string/button_g_off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:onClick="gestureOff"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/text_song_info"

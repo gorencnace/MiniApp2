@@ -98,7 +98,7 @@ public class AccelerationService extends Service implements SensorEventListener 
         getAccelerometer(event);
         String command = IDLE;
         // when we have 50 readings of sensor we calculate if we want to play or pause song
-        if (mSensorReadings.size() > 49) {
+        if (mSensorReadings.size() > 9) {
             int horizontal = 0;
             int vertical = 0;
             for (float[] d : mSensorReadings) {

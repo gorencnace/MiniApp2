@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             serviceBound = true;
 
             // Update the UI if song is already playing
-            if (mediaPlayerService.isPlaying()) {
+            if (!mediaPlayerService.isMediaPlayerNull()) {
                 updateUIPlay();
             }
         }
@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         songTitle = (TextView) findViewById(R.id.text_song_info);
         songDuration = (TextView) findViewById(R.id.text_duration);
+        updateUIPlay();
     }
 
     @Override
