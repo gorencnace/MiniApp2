@@ -106,7 +106,7 @@ public class MediaPlayerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Starting service");
         // create notification
-        createNotification();
+        startForeground(NOTIFICATION_ID, createNotification());
         // getting commands from notification and executing methods in service
         if (intent.getAction() != null) {
             if (intent.getAction().equals((ACTION_EXIT))) {
@@ -174,7 +174,7 @@ public class MediaPlayerService extends Service {
         // finally, we send empty message so the handler starts the timer
         mUpdateHandler.sendEmptyMessage(MSG_SONG_TIME);
         // and we create new notification
-        createNotification();
+        startForeground(NOTIFICATION_ID, createNotification());
     }
 
     // PAUSE
@@ -184,7 +184,7 @@ public class MediaPlayerService extends Service {
             // we stop updating handler
             mUpdateHandler.removeMessages(MSG_SONG_TIME);
             mediaPlayer.pause();
-            createNotification();
+            startForeground(NOTIFICATION_ID, createNotification());
         }
     }
 
@@ -199,7 +199,7 @@ public class MediaPlayerService extends Service {
             mediaPlayer.release();
             mediaPlayer = null;
         }
-        createNotification();
+        startForeground(NOTIFICATION_ID, createNotification());
     }
 
     // EXIT
